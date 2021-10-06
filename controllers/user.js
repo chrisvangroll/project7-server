@@ -3,12 +3,37 @@ const jwt = require('jsonwebtoken');
 const mysql = require('mysql');
 require('dotenv/config');
 
-const db = mysql.createConnection({
-    user: 'root',
-    host: 'localhost',
+const dbConfig = {
+    user: 'bac62c3de62c0a',
+    host: 'us-cdbr-east-04.cleardb.com',
     password: process.env.DB_PASSWORD,
-    database: 'groupomania'
-  })
+    database: 'heroku_c2f01276b68d472'
+}
+
+let db;
+function handleDisconnect() {
+    console.log('dbconfig')
+    db = mysql.createConnection(dbConfig);  // Recreate the connection, since the old one cannot be reused.
+    db.connect(function onConnect(err) {   // The server is either down
+        if (err) {                                  // or restarting (takes a while sometimes).
+            console.log('error when connecting to db:', err);
+            setTimeout(handleDisconnect, 10000);    // We introduce a delay before attempting to reconnect,
+        }
+        else {
+            console.log('connected to DB')
+        }                                     // to avoid a hot loop, and to allow our node script to
+    });                                             // process asynchronous requests in the meantime.
+    // If you're also serving http, display a 503 error.
+    db.on('error', function onError(err) {
+        console.log('db error', err);
+        if (err.code == 'PROTOCOL_CONNECTION_LOST') {   // Connection to the MySQL server is usually
+            handleDisconnect();                         // lost due to either server restart, or a
+        } else {                                        // connnection idle timeout (the wait_timeout
+            throw err;                                  // server variable configures this)
+        }
+    });
+}
+handleDisconnect();
     
 exports.signup =  (req, res, next) =>{
     const password = req.body.password;
