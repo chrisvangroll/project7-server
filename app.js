@@ -28,6 +28,15 @@ db.connect((err)=>{
 //middleware
 app.use(cors());
 
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE')
+    res.setHeader('Access-Control-Allow-Headers', '*')
+    res.setHeader('Access-Control-Allow-Credentials', true)
+    next()
+  })
+  
+
 app.use(helmet());
 
 app.use(bodyParser.json());
