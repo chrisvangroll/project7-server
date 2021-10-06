@@ -9,7 +9,7 @@ const auth = require('../middleware/auth')
 
   router.post('/', multer, forumCtrl.createPost);
 
-  router.get('/', auth, forumCtrl.getAllPosts);
+  router.get('/', forumCtrl.getAllPosts);
 
   router.get('/admin', forumCtrl.getAdmin);
 
